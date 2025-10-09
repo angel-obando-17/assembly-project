@@ -33,7 +33,7 @@ void  list_display  ( List* list );
 int   list_size     ( List* list );
 void  list_clear    ( List* list );
 int   list_empty    ( List* list );
-List* list_create   ( );
+List* list_create   ( void );
 
 void  destroy_list  ( List* list );
 

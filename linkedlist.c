@@ -153,7 +153,7 @@ int list_empty( List* list ) {
     return !list -> n;
 }
 
-List* list_create( ) {
+List* list_create( void ) {
     List* list = (List*) malloc( sizeof( List ) );
     if( list == NULL ) {
         fprintf( stderr, "Error: Can't assign memory to List\n" );
