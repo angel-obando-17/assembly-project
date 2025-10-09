@@ -13,6 +13,7 @@ struct Node {
 struct map {
     int   n;
     Node* firstNode;
+    Node* lastNode;
     void  (*insert)  ( map*, char*, int );
     void  (*erase)   ( map*, char* );
     int   (*find)    ( map*, char* );
