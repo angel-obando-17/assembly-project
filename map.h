@@ -1,35 +1,36 @@
 #ifndef MAP_H
 #define MAP_H
 
-typedef struct Node Node;
-typedef struct map map;
+#include "linkedlist.h"
 
-struct Node {
-    char*   key;
-    int     element;
-    Node*   next;
+typedef struct Map Map;
+
+struct Map {
+    unsigned int     n;
+    unsigned int     MAX_SIZE;
+    List**           buckets;
+    void             (*insert)   ( Map*, void*, void*, size_t );
+    unsigned int     (*contains) ( Map*, void*, size_t );
+    void             (*erase)    ( Map*, void*, size_t );
+    void*            (*get)      ( Map*, void*, size_t );
+    void             (*resize)   ( Map*, unsigned int );
+    unsigned int     (*size)     ( Map* );
+    void             (*clear)    ( Map* );
+    unsigned int     (*empty)    ( Map* );
 };
 
-struct map {
-    int   n;
-    Node* firstNode;
-    Node* lastNode;
-    void  (*insert)  ( map*, char*, int );
-    void  (*erase)   ( map*, char* );
-    int   (*find)    ( map*, char* );
-    int   (*count)   ( map*, char* );
-    void  (*display) ( map* );
-    int   (*size)    ( map* );
-    int   (*empty)   ( map* );
-};
+unsigned int map_hash( Map* map, void* key, size_t key_size );
 
-void insert    ( map* table, char* key, int element );
-void erase     ( map* table, char* key, int element );
-int  find      ( map* table, char* key );
-int  count     ( map* table, char* key );
-void display   ( map* table );
-int  size      ( map* table );
-int  empty     ( map* table );
-map  createMap ( );
+void         map_insert   ( Map* map, void* key, void* value, size_t key_size );
+unsigned int map_contains ( Map* map, void* value, size_t value_size );
+void         map_erase    ( Map* map, void* key, size_t key_size );
+void*        map_get      ( Map* map, void* key, size_t key_size );
+void         map_resize   ( Map* map, unsigned int size );  
+unsigned int map_size     ( Map* map );
+void         map_clear    ( Map* map );
+unsigned int map_empty    ( Map* map );
+Map*         map_create   ( unsigned int size );
+
+void         destroy_map  ( Map* map );
 
 #endif
