@@ -24,7 +24,7 @@ struct List {
 };
 
 
-void* list_find     ( List* list, void* item, int (*cmp_f) ( void*, void* )  );
+void* list_find     ( List* list, void* item, int (*cmp_f) ( void*, void* ) );
 void  list_for_each ( List* list, void (*callback) ( void* ) );
 void* list_insert   ( List* list, int index, void* item );
 void* list_remove   ( List* list, int index );

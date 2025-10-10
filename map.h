@@ -4,6 +4,7 @@
 #include "linkedlist.h"
 
 typedef struct Map Map;
+typedef struct item item;
 
 struct Map {
     unsigned int     n;
@@ -19,6 +20,12 @@ struct Map {
     unsigned int     (*empty)    ( Map* );
 };
 
+struct item {
+    void*   key;
+    void*   value;
+    size_t  key_size;
+};
+
 unsigned int map_hash( Map* map, void* key, size_t key_size );
 
 void         map_insert   ( Map* map, void* key, void* value, size_t key_size );
@@ -30,6 +37,7 @@ unsigned int map_size     ( Map* map );
 void         map_clear    ( Map* map );
 unsigned int map_empty    ( Map* map );
 Map*         map_create   ( unsigned int size );
+float        load_factor  ( Map* map );
 
 void         destroy_map  ( Map* map );
 
