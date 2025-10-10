@@ -10,7 +10,7 @@ struct Map {
     unsigned int     n;
     unsigned int     MAX_SIZE;
     List**           buckets;
-    void             (*insert)   ( Map*, void*, void*, size_t );
+    void             (*insert)   ( Map*, void*, void*, size_t, size_t );
     unsigned int     (*contains) ( Map*, void*, size_t );
     void             (*erase)    ( Map*, void*, size_t );
     void*            (*get)      ( Map*, void*, size_t );
@@ -24,11 +24,12 @@ struct item {
     void*   key;
     void*   value;
     size_t  key_size;
+    size_t  value_size;
 };
 
 unsigned int map_hash( Map* map, void* key, size_t key_size );
 
-void         map_insert   ( Map* map, void* key, void* value, size_t key_size );
+void         map_insert   ( Map* map, void* key, void* value, size_t key_size, size_t value_size );
 unsigned int map_contains ( Map* map, void* value, size_t value_size );
 void         map_erase    ( Map* map, void* key, size_t key_size );
 void*        map_get      ( Map* map, void* key, size_t key_size );
