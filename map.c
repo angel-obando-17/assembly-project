@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include "map.h"
 
 #ifdef  DEBUG
@@ -9,6 +10,7 @@
 #define DEBUG_PRINT( x )
 #endif
 
+/* Funcion hash muy simple. */
 unsigned int map_hash( Map* map, void* key, size_t key_size ) {
     unsigned char* data = (unsigned char*) key;
     unsigned int   hash = 0;
@@ -20,6 +22,8 @@ unsigned int map_hash( Map* map, void* key, size_t key_size ) {
     return hash % map -> MAX_SIZE;
 }
 
+/* Insertar un nuevo elemento [ key : value ] en el map, si el map no tiene suficiente
+   espacio entonces hace resize( ). */
 void map_insert( Map* map, void* key, void* value, size_t key_size, size_t value_size ) {
     if( load_factor( map ) < 0.75 ) {
         unsigned int iter = map_hash( map, key, key_size );
@@ -68,6 +72,7 @@ void map_insert( Map* map, void* key, void* value, size_t key_size, size_t value
     return;
 }   
 
+/* Aumenta el MAX_SIZE del map, solo cuando el load factor sea mayor a 0,75. */
 void map_resize( Map* map, unsigned int size ) {
     unsigned int oldSize = map -> MAX_SIZE;
     map -> MAX_SIZE = size;
@@ -99,10 +104,12 @@ void map_resize( Map* map, unsigned int size ) {
     return;
 }
 
+/* Retorna el size del map. */
 unsigned int map_size( Map* map ) {
     return map -> n;
 }
 
+/* Limpia el map. */
 void map_clear( Map* map ) {
     for( unsigned int i = 0; i < map -> MAX_SIZE; i++ ) {
         for( int j = 0; j < map -> buckets[ i ] -> size( map -> buckets[ i ] ); j++ ) {
@@ -120,10 +127,12 @@ void map_clear( Map* map ) {
     return;
 }
 
+/* Retorna si el map esta empty: 1 -> si, 0 -> no. */
 unsigned int map_empty( Map* map ) {
     return !map -> n;
 }
 
+/* Crea un nuevo map, del tamaño size. */
 Map* map_create( unsigned int size ) {
     Map* map = (Map*) malloc( sizeof( Map ) ) ;
     if( map == NULL ) {
@@ -153,10 +162,13 @@ Map* map_create( unsigned int size ) {
     return map;
 }
 
+/* Retorna el load factor del map. */
 float load_factor( Map* map ) {
     return (float) map -> n / (float) map -> MAX_SIZE;
 }
 
+/* Destructor del map, libera toda la memoria ocupada tanto por los buckets,
+   y el propio map. */
 void destroy_map( Map* map ) {
     if( map == NULL ) {
         return;
