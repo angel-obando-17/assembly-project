@@ -10,6 +10,13 @@
 #define DEBUG_PRINT( x )
 #endif
 
+typedef struct pair pair;
+
+struct pair {
+    item* first;
+    int second;
+};
+
 /* Funcion hash muy simple. */
 unsigned int map_hash( Map* map, void* key, size_t key_size ) {
     unsigned char* data = (unsigned char*) key;
@@ -22,25 +29,42 @@ unsigned int map_hash( Map* map, void* key, size_t key_size ) {
     return hash % map -> MAX_SIZE;
 }
 
+/* Retorna el item que pertenece a la key que se busca. */
+pair* map_find_item( Map* map, void* key, size_t key_size ) {
+    pair* object;
+    unsigned int iter = map_hash( map, key, key_size );
+    List* bucket = map -> buckets[ iter ];
+    if( bucket -> empty( bucket ) ) {
+        return NULL;
+    } else {
+        for( int i = 0; i < bucket -> size( bucket ); i++ ) {
+            item* current = (item*) bucket -> get( bucket, i );
+            if( current -> key_size == key_size && memcmp( current -> key, key, key_size ) == 0 ) {
+                object -> first = current;
+                object -> second = iter;
+                return object;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 /* Insertar un nuevo elemento [ key : value ] en el map, si el map no tiene suficiente
    espacio entonces hace resize( ). */
 void map_insert( Map* map, void* key, void* value, size_t key_size, size_t value_size ) {
     if( load_factor( map ) < 0.75 ) {
-        unsigned int iter = map_hash( map, key, key_size );
-        List* bucket = map -> buckets[ iter ];
-        for( int i = 0; i < bucket -> size( bucket ); i++ ) {
-            item* current = (item*) bucket -> get( bucket, i );
-            if( current -> key_size == key_size && memcmp( current -> key, key, key_size ) == 0 ) {
-                free( current -> value );
-                current -> value = malloc( value_size );
-                if( !current -> value ) {
-                    fprintf( stderr, "Error: Can't assign memory to insert.\n" );
-                    exit( EXIT_FAILURE );
-                }
-                memcpy( current -> value, value, value_size );
-                current -> value_size = value_size;
-                return;
+        pair* current = map_find_item( map, key, key_size );
+        if( (item*) current -> first != NULL ) {
+            free( current -> first -> value );
+            current -> first -> value = malloc( value_size );
+            if( !current -> first -> value ) {
+                fprintf( stderr, "Error: Can't assign memory to insert.\n" );
+                exit( EXIT_FAILURE );
             }
+            memcpy( current -> first -> value, value, value_size );
+            current -> first -> value_size = value_size;
+            return;
         }
         item* newitem = (item*) malloc( sizeof( item ) );
         if( !newitem ) {
@@ -61,8 +85,10 @@ void map_insert( Map* map, void* key, void* value, size_t key_size, size_t value
         newitem -> key_size = key_size;
         newitem -> value_size = value_size;
 
-        map -> buckets[ iter ] -> insert( map -> buckets[ iter ], map -> buckets[ iter ] -> size( map -> buckets[ iter ] ), newitem );
+        map -> buckets[ current -> second ] -> insert( map -> buckets[ current -> second ], map -> 
+               buckets[ current -> second ] -> size( map -> buckets[ current -> second ] ), newitem );
         map -> n++;
+
     } else {
         unsigned int newSize = 2 * map -> MAX_SIZE; 
         map_resize( map, newSize );
@@ -71,6 +97,15 @@ void map_insert( Map* map, void* key, void* value, size_t key_size, size_t value
 
     return;
 }   
+
+/* Funcion que retorna si el mapa contiene un value asociado la key [ key ]. */
+unsigned int map_contains( Map* map, void* key, size_t key_size ) {
+    if( map_find_item( map, key, key_size ) != NULL ) {
+        return 1;
+    }
+
+    return 0;
+}  
 
 /* Aumenta el MAX_SIZE del map, solo cuando el load factor sea mayor a 0,75. */
 void map_resize( Map* map, unsigned int size ) {
